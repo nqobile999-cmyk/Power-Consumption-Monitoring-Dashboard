@@ -38,7 +38,7 @@ const AppState = {
             'NZD': 'NZ$', // New Zealand Dollar
             'SEK': 'kr',  // Swedish Krona
             'NOK': 'kr',  // Norwegian Krone
-            'DKK': 'kr',  // Danish Krone
+            'DKK': 'kr',  // Danish Krona
             'SGD': 'S$',  // Singapore Dollar
             'HKD': 'HK$', // Hong Kong Dollar
             'KRW': '₩',  // South Korean Won
@@ -67,7 +67,41 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load saved settings
     loadUserSettings();
+    
+    // Initialize chart currency listeners
+    initChartCurrencyListeners();
 });
+
+// ===== CHART CURRENCY LISTENERS =====
+function initChartCurrencyListeners() {
+    AppState.onCurrencyChange(function(newCurrency) {
+        console.log('Chart currency update:', newCurrency);
+        
+        // Update daily chart if it exists
+        if (window.dailyChart) {
+            if (dailyChart.options.plugins.tooltip && dailyChart.options.plugins.tooltip.callbacks) {
+                dailyChart.options.plugins.tooltip.callbacks.label = function(context) {
+                    const price = parseFloat(document.getElementById('priceInput').value) || 0.15;
+                    const cost = context.raw * price;
+                    return `Cost: ${formatCurrency(cost, newCurrency)}`;
+                };
+                dailyChart.update();
+            }
+        }
+        
+        // Update monthly chart if it exists
+        if (window.monthlyChart) {
+            if (monthlyChart.options.plugins.tooltip && monthlyChart.options.plugins.tooltip.callbacks) {
+                monthlyChart.options.plugins.tooltip.callbacks.label = function(context) {
+                    const price = parseFloat(document.getElementById('priceInput').value) || 0.15;
+                    const cost = context.raw * price;
+                    return `Cost: ${formatCurrency(cost, newCurrency)}`;
+                };
+                monthlyChart.update();
+            }
+        }
+    });
+}
 
 // ===== DATE & TIME UPDATER =====
 function initDateTime() {
@@ -138,7 +172,7 @@ function updateCurrencySymbol(currencyCode) {
 function updateAllCurrencyDisplays() {
     const currency = AppState.selectedCurrency;
     const symbol = AppState.getCurrencySymbol();
-    const price = parseFloat(document.getElementById('priceInput').value);
+    const price = parseFloat(document.getElementById('priceInput').value) || 0.15;
     
     console.log('Updating all displays with:', { currency, symbol, price });
     
@@ -308,26 +342,26 @@ function calculateCost(energyKwh, pricePerKwh) {
 }
 
 function formatCurrency(amount, currencyCode) {
-    const symbols = AppState.getCurrencySymbol();
+    // Get the symbol for the SPECIFIC currency code
+    const symbols = {
+        'USD': '$', 'ZAR': 'R', 'BWP': 'P', 'EUR': '€', 'GBP': '£',
+        'CAD': 'C$', 'AUD': 'A$', 'JPY': '¥', 'CNY': '¥', 'INR': '₹',
+        'CHF': 'CHF', 'NZD': 'NZ$', 'SEK': 'kr', 'NOK': 'kr', 'DKK': 'kr',
+        'SGD': 'S$', 'HKD': 'HK$', 'KRW': '₩', 'BRL': 'R$', 'TRY': '₺',
+        'MXN': 'Mex$', 'AED': 'د.إ', 'SAR': 'ر.س', 'ZMW': 'ZK',
+        'KES': 'KSh', 'NGN': '₦', 'EGP': 'E£'
+    };
     
-    // Handle currencies that don't use decimal places (like JPY)
+    const symbol = symbols[currencyCode] || '$';
+    
+    // Handle currencies that don't use decimal places
     const decimalPlaces = ['JPY', 'KRW'].includes(currencyCode) ? 0 : 2;
     
-    return `${symbols}${amount.toFixed(decimalPlaces)}`;
+    return `${symbol}${amount.toFixed(decimalPlaces)}`;
 }
 
 // Make functions available globally
 window.editPrice = editPrice;
 window.saveSettings = saveSettings;
 window.updateAllCurrencyDisplays = updateAllCurrencyDisplays;
-// In your chart initialization code
-AppState.onCurrencyChange(function(newCurrency) {
-    if (window.dailyChart) {
-        dailyChart.options.plugins.tooltip.callbacks.label = function(context) {
-            const price = parseFloat(document.getElementById('priceInput').value);
-            const cost = context.raw * price;
-            return `Cost: ${formatCurrency(cost, newCurrency)}`;
-        };
-        dailyChart.update();
-    }
-});
+window.AppState = AppState; // Expose AppState for debugging
