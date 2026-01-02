@@ -1,37 +1,115 @@
-<select id="currencySelect" class="currency-select">
-    <optgroup label="African Currencies">
-        <option value="ZAR">South African Rand (R)</option>
-        <option value="BWP">Botswana Pula (P)</option>
-        <option value="KES">Kenyan Shilling (KSh)</option>
-        <option value="NGN">Nigerian Naira (₦)</option>
-        <option value="ZMW">Zambian Kwacha (ZK)</option>
-        <option value="EGP">Egyptian Pound (E£)</option>
-    </optgroup>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Monitoring Dashboard</title>
     
-    <optgroup label="Major Global">
-        <option value="USD">US Dollar ($)</option>
-        <option value="EUR">Euro (€)</option>
-        <option value="GBP">British Pound (£)</option>
-        <option value="JPY">Japanese Yen (¥)</option>
-        <option value="CNY">Chinese Yuan (¥)</option>
-        <option value="INR">Indian Rupee (₹)</option>
-        <option value="CAD">Canadian Dollar (C$)</option>
-        <option value="AUD">Australian Dollar (A$)</option>
-    </optgroup>
+    <!-- External CSS Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
     
-    <optgroup label="Other Currencies">
-        <option value="CHF">Swiss Franc (CHF)</option>
-        <option value="SGD">Singapore Dollar (S$)</option>
-        <option value="BRL">Brazilian Real (R$)</option>
-        <option value="MXN">Mexican Peso (Mex$)</option>
-        <option value="AED">UAE Dirham (د.إ)</option>
-        <option value="SAR">Saudi Riyal (ر.س)</option>
-        <option value="TRY">Turkish Lira (₺)</option>
-        <option value="KRW">South Korean Won (₩)</option>
-        <option value="SEK">Swedish Krona (kr)</option>
-        <option value="NOK">Norwegian Krone (kr)</option>
-        <option value="DKK">Danish Krona (kr)</option>
-        <option value="NZD">New Zealand Dollar (NZ$)</option>
-        <option value="HKD">Hong Kong Dollar (HK$)</option>
-    </optgroup>
-</select>
+    <!-- External JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- DASHBOARD CONTENT -->
+    <div class="dashboard-container">
+        <div class="header">
+            <h1><i class="fas fa-bolt"></i> Energy Dashboard</h1>
+            <div class="datetime" id="datetime">Loading time...</div>
+        </div>
+        
+        <div class="price-section">
+            <h2><i class="fas fa-money-bill-wave"></i> Electricity Price</h2>
+            <div class="price-display">
+                <span class="currency-symbol">$</span>
+                <span class="price-amount">0.15</span>
+                <span class="price-unit">per kWh</span>
+            </div>
+            <button class="edit-btn" onclick="editPrice()">Edit Price</button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3><i class="fas fa-chart-line"></i> Current Power</h3>
+                <div class="stat-value">1,250 W</div>
+                <div class="stat-label">Live consumption</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3><i class="fas fa-calendar-day"></i> Today's Cost</h3>
+                <div class="stat-value">$2.45</div>
+                <div class="stat-label">Based on current rate</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3><i class="fas fa-calendar-month"></i> This Month</h3>
+                <div class="stat-value">$43.80</div>
+                <div class="stat-label">Total so far</div>
+            </div>
+        </div>
+        
+        <div class="currency-settings">
+            <h2><i class="fas fa-globe"></i> Currency Settings</h2>
+            <div class="settings-group">
+                <select id="currencySelect" class="currency-select">
+                    <optgroup label="African Currencies">
+                        <option value="ZAR">South African Rand (R)</option>
+                        <option value="BWP">Botswana Pula (P)</option>
+                        <option value="KES">Kenyan Shilling (KSh)</option>
+                        <option value="NGN">Nigerian Naira (₦)</option>
+                        <option value="ZMW">Zambian Kwacha (ZK)</option>
+                        <option value="EGP">Egyptian Pound (E£)</option>
+                    </optgroup>
+                    
+                    <optgroup label="Major Global">
+                        <option value="USD" selected>US Dollar ($)</option>
+                        <option value="EUR">Euro (€)</option>
+                        <option value="GBP">British Pound (£)</option>
+                        <option value="JPY">Japanese Yen (¥)</option>
+                        <option value="CNY">Chinese Yuan (¥)</option>
+                        <option value="INR">Indian Rupee (₹)</option>
+                        <option value="CAD">Canadian Dollar (C$)</option>
+                        <option value="AUD">Australian Dollar (A$)</option>
+                    </optgroup>
+                    
+                    <optgroup label="Other Currencies">
+                        <option value="CHF">Swiss Franc (CHF)</option>
+                        <option value="SGD">Singapore Dollar (S$)</option>
+                        <option value="BRL">Brazilian Real (R$)</option>
+                        <option value="MXN">Mexican Peso (Mex$)</option>
+                        <option value="AED">UAE Dirham (د.إ)</option>
+                        <option value="SAR">Saudi Riyal (ر.س)</option>
+                        <option value="TRY">Turkish Lira (₺)</option>
+                        <option value="KRW">South Korean Won (₩)</option>
+                        <option value="SEK">Swedish Krona (kr)</option>
+                        <option value="NOK">Norwegian Krone (kr)</option>
+                        <option value="DKK">Danish Krona (kr)</option>
+                        <option value="NZD">New Zealand Dollar (NZ$)</option>
+                        <option value="HKD">Hong Kong Dollar (HK$)</option>
+                    </optgroup>
+                </select>
+                
+                <div class="price-input-group">
+                    <label for="priceInput">Price per kWh:</label>
+                    <input type="number" id="priceInput" value="0.15" step="0.001" min="0">
+                </div>
+                
+                <button class="save-btn" onclick="saveSettings()">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-info-circle"></i> Energy Monitor v1.0 • Multi-currency support • Real-time tracking</p>
+        </div>
+    </div>
+    
+    <!-- JavaScript Files -->
+    <script src="supabase.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
