@@ -1,6 +1,61 @@
 // ===== ENERGY MONITORING DASHBOARD =====
 // Main application JavaScript
 
+// ===== APP STATE MANAGEMENT =====
+const AppState = {
+    selectedCurrency: 'USD', // Default
+    listeners: [],
+    
+    updateCurrency: function(newCurrency) {
+        this.selectedCurrency = newCurrency;
+        this.notifyCurrencyChange();
+    },
+    
+    onCurrencyChange: function(callback) {
+        this.listeners.push(callback);
+    },
+    
+    notifyCurrencyChange: function() {
+        this.listeners.forEach(callback => callback(this.selectedCurrency));
+    },
+    
+    getCurrencySymbol: function() {
+        const symbols = {
+            // Current currencies
+            'USD': '$',  // United States Dollar
+            'ZAR': 'R',  // South African Rand
+            'BWP': 'P',  // Botswana Pula
+            'EUR': '€',  // Euro
+            'GBP': '£',  // British Pound
+            
+            // Additional global currencies:
+            'CAD': 'C$', // Canadian Dollar
+            'AUD': 'A$', // Australian Dollar
+            'JPY': '¥',  // Japanese Yen
+            'CNY': '¥',  // Chinese Yuan
+            'INR': '₹',  // Indian Rupee
+            'CHF': 'CHF', // Swiss Franc
+            'NZD': 'NZ$', // New Zealand Dollar
+            'SEK': 'kr',  // Swedish Krona
+            'NOK': 'kr',  // Norwegian Krone
+            'DKK': 'kr',  // Danish Krone
+            'SGD': 'S$',  // Singapore Dollar
+            'HKD': 'HK$', // Hong Kong Dollar
+            'KRW': '₩',  // South Korean Won
+            'BRL': 'R$',  // Brazilian Real
+            'TRY': '₺',  // Turkish Lira
+            'MXN': 'Mex$', // Mexican Peso
+            'AED': 'د.إ', // UAE Dirham
+            'SAR': 'ر.س', // Saudi Riyal
+            'ZMW': 'ZK',  // Zambian Kwacha
+            'KES': 'KSh', // Kenyan Shilling
+            'NGN': '₦',  // Nigerian Naira
+            'EGP': 'E£'   // Egyptian Pound
+        };
+        return symbols[this.selectedCurrency] || '$';
+    }
+};
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Energy Dashboard initialized');
@@ -47,7 +102,10 @@ function initCurrencySettings() {
     if (currencySelect) {
         // Add change listener
         currencySelect.addEventListener('change', function() {
+            // Update BOTH the AppState AND the UI
+            AppState.updateCurrency(this.value);
             updateCurrencySymbol(this.value);
+            updateAllCurrencyDisplays(); // NEW: Update all dashboard displays
             saveSettings();
         });
         
@@ -58,7 +116,10 @@ function initCurrencySettings() {
     // Set up price input
     const priceInput = document.getElementById('priceInput');
     if (priceInput) {
-        priceInput.addEventListener('change', saveSettings);
+        priceInput.addEventListener('change', function() {
+            saveSettings();
+            updateAllCurrencyDisplays(); // Also update when price changes
+        });
         priceInput.addEventListener('input', function() {
             // Validate input
             if (this.value < 0) this.value = 0;
@@ -67,46 +128,50 @@ function initCurrencySettings() {
 }
 
 function updateCurrencySymbol(currencyCode) {
-    const symbols = {
-      // In your updateCurrencySymbol function, expand the symbols object:
-const symbols = {
-    // Current currencies
-    'USD': '$',  // United States Dollar
-    'ZAR': 'R',  // South African Rand
-    'BWP': 'P',  // Botswana Pula
-    'EUR': '€',  // Euro
-    'GBP': '£',  // British Pound
-    
-    // Suggested additional global currencies:
-    'CAD': 'C$', // Canadian Dollar
-    'AUD': 'A$', // Australian Dollar
-    'JPY': '¥',  // Japanese Yen
-    'CNY': '¥',  // Chinese Yuan (also uses ¥)
-    'INR': '₹',  // Indian Rupee
-    'CHF': 'CHF', // Swiss Franc
-    'NZD': 'NZ$', // New Zealand Dollar
-    'SEK': 'kr',  // Swedish Krona
-    'NOK': 'kr',  // Norwegian Krone
-    'DKK': 'kr',  // Danish Krone
-    'SGD': 'S$',  // Singapore Dollar
-    'HKD': 'HK$', // Hong Kong Dollar
-    'KRW': '₩',  // South Korean Won
-    'BRL': 'R$',  // Brazilian Real
-    'RUB': '₽',  // Russian Ruble
-    'TRY': '₺',  // Turkish Lira
-    'MXN': 'Mex$', // Mexican Peso
-    'AED': 'د.إ', // UAE Dirham (Arabic)
-    'SAR': 'ر.س', // Saudi Riyal (Arabic)
-    'ZMW': 'ZK',  // Zambian Kwacha
-    'KES': 'KSh', // Kenyan Shilling
-    'NGN': '₦',  // Nigerian Naira
-    'EGP': 'E£'   // Egyptian Pound
-};
-    
     const symbolElement = document.querySelector('.currency-symbol');
-    if (symbolElement && symbols[currencyCode]) {
-        symbolElement.textContent = symbols[currencyCode];
+    if (symbolElement) {
+        symbolElement.textContent = AppState.getCurrencySymbol();
     }
+}
+
+// ===== UPDATE ALL CURRENCY DISPLAYS =====
+function updateAllCurrencyDisplays() {
+    const currency = AppState.selectedCurrency;
+    const symbol = AppState.getCurrencySymbol();
+    const price = parseFloat(document.getElementById('priceInput').value);
+    
+    console.log('Updating all displays with:', { currency, symbol, price });
+    
+    // 1. Update all currency symbols
+    document.querySelectorAll('.currency-symbol').forEach(el => {
+        el.textContent = symbol;
+    });
+    
+    // 2. Update all cost calculations in the dashboard
+    document.querySelectorAll('[data-kwh]').forEach(el => {
+        const kwh = parseFloat(el.dataset.kwh) || 0;
+        const cost = calculateCost(kwh, price);
+        const costElement = el.querySelector('.cost-display') || el;
+        costElement.textContent = formatCurrency(cost, currency);
+    });
+    
+    // 3. Update any summary cards
+    updateSummaryCards(currency, price);
+}
+
+function updateSummaryCards(currency, pricePerKwh) {
+    // Example: Update summary cards if they exist
+    const cards = document.querySelectorAll('.summary-card');
+    cards.forEach(card => {
+        const kwhElement = card.querySelector('.kwh-value');
+        const costElement = card.querySelector('.cost-value');
+        
+        if (kwhElement && costElement) {
+            const kwh = parseFloat(kwhElement.dataset.kwh) || 0;
+            const cost = calculateCost(kwh, pricePerKwh);
+            costElement.textContent = formatCurrency(cost, currency);
+        }
+    });
 }
 
 // ===== SETTINGS MANAGEMENT =====
@@ -140,9 +205,13 @@ function loadUserSettings() {
     if (currencySelect) currencySelect.value = currency;
     if (priceInput) priceInput.value = price;
     
+    // Initialize AppState with saved currency
+    AppState.selectedCurrency = currency;
+    
     // Update UI
     updateCurrencySymbol(currency);
     updatePriceDisplay(price);
+    updateAllCurrencyDisplays(); // Update dashboard on load
 }
 
 function updatePriceDisplay(price) {
@@ -160,6 +229,7 @@ function editPrice() {
     if (newPrice !== null && newPrice !== '' && !isNaN(newPrice)) {
         document.getElementById('priceInput').value = parseFloat(newPrice).toFixed(3);
         saveSettings();
+        updateAllCurrencyDisplays(); // Update dashboard after price change
     }
 }
 
@@ -211,7 +281,10 @@ function initEventListeners() {
     // Save button
     const saveBtn = document.querySelector('.save-btn');
     if (saveBtn) {
-        saveBtn.addEventListener('click', saveSettings);
+        saveBtn.addEventListener('click', function() {
+            saveSettings();
+            updateAllCurrencyDisplays(); // Update dashboard when manually saving
+        });
     }
     
     // Add CSS animations
@@ -235,60 +308,15 @@ function calculateCost(energyKwh, pricePerKwh) {
 }
 
 function formatCurrency(amount, currencyCode) {
-    const symbols = {
-        'USD': '$',
-        'ZAR': 'R', 
-        'BWP': 'P',
-        'EUR': '€',
-        'GBP': '£'
-    };
+    const symbols = AppState.getCurrencySymbol();
     
-    const symbol = symbols[currencyCode] || '$';
-    return `${symbol}${amount.toFixed(2)}`;
+    // Handle currencies that don't use decimal places (like JPY)
+    const decimalPlaces = ['JPY', 'KRW'].includes(currencyCode) ? 0 : 2;
+    
+    return `${symbols}${amount.toFixed(decimalPlaces)}`;
 }
 
 // Make functions available globally
 window.editPrice = editPrice;
 window.saveSettings = saveSettings;
-// In your main app.js or a dedicated state file (e.g., `state.js`)
-const AppState = {
-    selectedCurrency: 'ZAR', // default currency
-    updateCurrency: function(newCurrency) {
-        this.selectedCurrency = newCurrency;
-        this.notifyCurrencyChange();
-    },
-    listeners: [],
-    onCurrencyChange: function(callback) {
-        this.listeners.push(callback);
-    },
-    notifyCurrencyChange: function() {
-        this.listeners.forEach(callback => callback(this.selectedCurrency));
-    }
-};
-// Assuming your currency dropdown has an id="currency-select"
-document.getElementById('currency-select').addEventListener('change', function(event) {
-    const selectedCurrency = event.target.value;
-    AppState.updateCurrency(selectedCurrency);
-});
-// In your Daily view logic (e.g., dailyChart.js)
-AppState.onCurrencyChange(function(newCurrency) {
-    updateDailyDisplay(newCurrency); // Your function to redraw/update daily charts & numbers
-});
-
-// In your Monthly view logic (e.g., monthlyChart.js)
-AppState.onCurrencyChange(function(newCurrency) {
-    updateMonthlyDisplay(newCurrency); // Your function to redraw/update monthly charts & numbers
-});
-function updateDailyDisplay(currency) {
-    const currencySymbols = { 'ZAR': 'R', 'USD': '$', 'EUR': '€' };
-    const symbol = currencySymbols[currency];
-    
-    // Update all elements with a class like 'currency-value'
-    document.querySelectorAll('.daily-cost').forEach(element => {
-        const baseValue = element.dataset.baseValue; // Store original number in data-attribute
-        element.textContent = `${symbol}${(baseValue * getConversionRate(currency)).toFixed(2)}`;
-    });
-    
-    // Re-draw your daily chart with new currency
-    dailyChart.updateCurrency(currency);
-}
+window.updateAllCurrencyDisplays = updateAllCurrencyDisplays;
