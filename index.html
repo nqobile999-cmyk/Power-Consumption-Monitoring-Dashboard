@@ -4,71 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Energy Monitoring Dashboard</title>
+    
+    <!-- External CSS Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Energy Monitoring Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    
+    <!-- External JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <!-- DELETE EVERYTHING FROM HERE TO THE SCRIPT TAGS -->
-    <!-- AND PASTE YOUR DASHBOARD HTML INSTEAD -->
-    
-    <!-- EXAMPLE: PASTE SOMETHING LIKE THIS (but use YOUR actual code) -->
+    <!-- YOUR DASHBOARD CONTENT STARTS HERE -->
     <div class="dashboard-container">
         <div class="header">
-            <h1>⚡ Energy Dashboard</h1>
+            <h1><i class="fas fa-bolt"></i> Energy Dashboard</h1>
             <div class="datetime" id="datetime">Loading time...</div>
         </div>
         
-        <div class="price-display">
-            <h3>Electricity Price</h3>
-            <div class="price">$0.15 per kWh</div>
+        <div class="price-section">
+            <h2><i class="fas fa-money-bill-wave"></i> Electricity Price</h2>
+            <div class="price-display">
+                <span class="currency-symbol">$</span>
+                <span class="price-amount">0.15</span>
+                <span class="price-unit">per kWh</span>
+            </div>
+            <button class="edit-btn" onclick="editPrice()">Edit Price</button>
         </div>
         
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>Current Power</h3>
-                <div class="value">1,250 W</div>
+                <h3><i class="fas fa-chart-line"></i> Current Power</h3>
+                <div class="stat-value">1,250 W</div>
+                <div class="stat-label">Live consumption</div>
             </div>
+            
             <div class="stat-card">
-                <h3>Today's Cost</h3>
-                <div class="value">$2.45</div>
+                <h3><i class="fas fa-calendar-day"></i> Today's Cost</h3>
+                <div class="stat-value">$2.45</div>
+                <div class="stat-label">Based on current rate</div>
             </div>
+            
             <div class="stat-card">
-                <h3>This Month</h3>
-                <div class="value">$43.80</div>
+                <h3><i class="fas fa-calendar-month"></i> This Month</h3>
+                <div class="stat-value">$43.80</div>
+                <div class="stat-label">Total so far</div>
             </div>
         </div>
         
-        <div class="currency-section">
-            <h3>Currency Settings</h3>
-            <select>
-                <option value="USD">USD ($)</option>
-                <option value="ZAR">ZAR (R)</option>
-                <option value="BWP">BWP (P)</option>
-            </select>
-            <button>Save</button>
+        <div class="currency-settings">
+            <h2><i class="fas fa-globe"></i> Currency Settings</h2>
+            <div class="settings-group">
+                <select id="currencySelect">
+                    <option value="USD">USD ($) - United States Dollar</option>
+                    <option value="ZAR">ZAR (R) - South African Rand</option>
+                    <option value="BWP">BWP (P) - Botswana Pula</option>
+                    <option value="EUR">EUR (€) - Euro</option>
+                    <option value="GBP">GBP (£) - British Pound</option>
+                </select>
+                
+                <div class="price-input-group">
+                    <label for="priceInput">Price per kWh:</label>
+                    <input type="number" id="priceInput" value="0.15" step="0.001" min="0">
+                </div>
+                
+                <button class="save-btn" onclick="saveSettings()">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-info-circle"></i> Energy Monitor v1.0 • Multi-currency support • Real-time tracking</p>
         </div>
     </div>
-    <!-- END OF EXAMPLE - USE YOUR ACTUAL CODE -->
+    <!-- YOUR DASHBOARD CONTENT ENDS HERE -->
     
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="supabase.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
-    <!-- Copy from the Base 44 project or your working version -->
-    <!-- Start with the container div -->
-    
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Your JavaScript Files -->
     <script src="supabase.js"></script>
     <script src="app.js"></script>
 </body>
