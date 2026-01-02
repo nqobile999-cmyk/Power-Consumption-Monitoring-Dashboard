@@ -222,3 +222,45 @@ function formatCurrency(amount, currencyCode) {
 // Make functions available globally
 window.editPrice = editPrice;
 window.saveSettings = saveSettings;
+// In your main app.js or a dedicated state file (e.g., `state.js`)
+const AppState = {
+    selectedCurrency: 'ZAR', // default currency
+    updateCurrency: function(newCurrency) {
+        this.selectedCurrency = newCurrency;
+        this.notifyCurrencyChange();
+    },
+    listeners: [],
+    onCurrencyChange: function(callback) {
+        this.listeners.push(callback);
+    },
+    notifyCurrencyChange: function() {
+        this.listeners.forEach(callback => callback(this.selectedCurrency));
+    }
+};
+// Assuming your currency dropdown has an id="currency-select"
+document.getElementById('currency-select').addEventListener('change', function(event) {
+    const selectedCurrency = event.target.value;
+    AppState.updateCurrency(selectedCurrency);
+});
+// In your Daily view logic (e.g., dailyChart.js)
+AppState.onCurrencyChange(function(newCurrency) {
+    updateDailyDisplay(newCurrency); // Your function to redraw/update daily charts & numbers
+});
+
+// In your Monthly view logic (e.g., monthlyChart.js)
+AppState.onCurrencyChange(function(newCurrency) {
+    updateMonthlyDisplay(newCurrency); // Your function to redraw/update monthly charts & numbers
+});
+function updateDailyDisplay(currency) {
+    const currencySymbols = { 'ZAR': 'R', 'USD': '$', 'EUR': '€' };
+    const symbol = currencySymbols[currency];
+    
+    // Update all elements with a class like 'currency-value'
+    document.querySelectorAll('.daily-cost').forEach(element => {
+        const baseValue = element.dataset.baseValue; // Store original number in data-attribute
+        element.textContent = `${symbol}${(baseValue * getConversionRate(currency)).toFixed(2)}`;
+    });
+    
+    // Re-draw your daily chart with new currency
+    dailyChart.updateCurrency(currency);
+}
