@@ -320,3 +320,14 @@ function formatCurrency(amount, currencyCode) {
 window.editPrice = editPrice;
 window.saveSettings = saveSettings;
 window.updateAllCurrencyDisplays = updateAllCurrencyDisplays;
+// In your chart initialization code
+AppState.onCurrencyChange(function(newCurrency) {
+    if (window.dailyChart) {
+        dailyChart.options.plugins.tooltip.callbacks.label = function(context) {
+            const price = parseFloat(document.getElementById('priceInput').value);
+            const cost = context.raw * price;
+            return `Cost: ${formatCurrency(cost, newCurrency)}`;
+        };
+        dailyChart.update();
+    }
+});
