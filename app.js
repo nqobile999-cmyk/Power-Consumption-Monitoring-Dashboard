@@ -19,7 +19,7 @@ const AppState = {
         this.listeners.forEach(callback => callback(this.selectedCurrency));
     },
     
-    getCurrencySymbol: function() {
+    getCurrencySymbol: function(currencyCode = null) {
         const symbols = {
             // Current currencies
             'USD': '$',  // United States Dollar
@@ -38,7 +38,7 @@ const AppState = {
             'NZD': 'NZ$', // New Zealand Dollar
             'SEK': 'kr',  // Swedish Krona
             'NOK': 'kr',  // Norwegian Krone
-            'DKK': 'kr',  // Danish Krona
+            'DKK': 'kr',  // Danish Krone
             'SGD': 'S$',  // Singapore Dollar
             'HKD': 'HK$', // Hong Kong Dollar
             'KRW': '₩',  // South Korean Won
@@ -52,7 +52,9 @@ const AppState = {
             'NGN': '₦',  // Nigerian Naira
             'EGP': 'E£'   // Egyptian Pound
         };
-        return symbols[this.selectedCurrency] || '$';
+        // Use provided currencyCode or default to selectedCurrency
+        const code = currencyCode || this.selectedCurrency;
+        return symbols[code] || '$';
     }
 };
 
@@ -342,19 +344,10 @@ function calculateCost(energyKwh, pricePerKwh) {
 }
 
 function formatCurrency(amount, currencyCode) {
-    // Get the symbol for the SPECIFIC currency code
-    const symbols = {
-        'USD': '$', 'ZAR': 'R', 'BWP': 'P', 'EUR': '€', 'GBP': '£',
-        'CAD': 'C$', 'AUD': 'A$', 'JPY': '¥', 'CNY': '¥', 'INR': '₹',
-        'CHF': 'CHF', 'NZD': 'NZ$', 'SEK': 'kr', 'NOK': 'kr', 'DKK': 'kr',
-        'SGD': 'S$', 'HKD': 'HK$', 'KRW': '₩', 'BRL': 'R$', 'TRY': '₺',
-        'MXN': 'Mex$', 'AED': 'د.إ', 'SAR': 'ر.س', 'ZMW': 'ZK',
-        'KES': 'KSh', 'NGN': '₦', 'EGP': 'E£'
-    };
+    // Use AppState.getCurrencySymbol() with the specific currencyCode
+    const symbol = AppState.getCurrencySymbol(currencyCode);
     
-    const symbol = symbols[currencyCode] || '$';
-    
-    // Handle currencies that don't use decimal places
+    // Handle currencies that don't use decimal places (like JPY)
     const decimalPlaces = ['JPY', 'KRW'].includes(currencyCode) ? 0 : 2;
     
     return `${symbol}${amount.toFixed(decimalPlaces)}`;
@@ -364,4 +357,4 @@ function formatCurrency(amount, currencyCode) {
 window.editPrice = editPrice;
 window.saveSettings = saveSettings;
 window.updateAllCurrencyDisplays = updateAllCurrencyDisplays;
-window.AppState = AppState; // Expose AppState for debugging
+window.AppState = AppState; // For debugging
