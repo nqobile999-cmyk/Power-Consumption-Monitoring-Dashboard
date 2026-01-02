@@ -68,12 +68,40 @@ function initCurrencySettings() {
 
 function updateCurrencySymbol(currencyCode) {
     const symbols = {
-        'USD': '$',
-        'ZAR': 'R',
-        'BWP': 'P',
-        'EUR': '€',
-        'GBP': '£'
-    };
+      // In your updateCurrencySymbol function, expand the symbols object:
+const symbols = {
+    // Current currencies
+    'USD': '$',  // United States Dollar
+    'ZAR': 'R',  // South African Rand
+    'BWP': 'P',  // Botswana Pula
+    'EUR': '€',  // Euro
+    'GBP': '£',  // British Pound
+    
+    // Suggested additional global currencies:
+    'CAD': 'C$', // Canadian Dollar
+    'AUD': 'A$', // Australian Dollar
+    'JPY': '¥',  // Japanese Yen
+    'CNY': '¥',  // Chinese Yuan (also uses ¥)
+    'INR': '₹',  // Indian Rupee
+    'CHF': 'CHF', // Swiss Franc
+    'NZD': 'NZ$', // New Zealand Dollar
+    'SEK': 'kr',  // Swedish Krona
+    'NOK': 'kr',  // Norwegian Krone
+    'DKK': 'kr',  // Danish Krone
+    'SGD': 'S$',  // Singapore Dollar
+    'HKD': 'HK$', // Hong Kong Dollar
+    'KRW': '₩',  // South Korean Won
+    'BRL': 'R$',  // Brazilian Real
+    'RUB': '₽',  // Russian Ruble
+    'TRY': '₺',  // Turkish Lira
+    'MXN': 'Mex$', // Mexican Peso
+    'AED': 'د.إ', // UAE Dirham (Arabic)
+    'SAR': 'ر.س', // Saudi Riyal (Arabic)
+    'ZMW': 'ZK',  // Zambian Kwacha
+    'KES': 'KSh', // Kenyan Shilling
+    'NGN': '₦',  // Nigerian Naira
+    'EGP': 'E£'   // Egyptian Pound
+};
     
     const symbolElement = document.querySelector('.currency-symbol');
     if (symbolElement && symbols[currencyCode]) {
