@@ -1,115 +1,243 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Energy Monitoring Dashboard</title>
-    
-    <!-- External CSS Libraries -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- External JS Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-</head>
-<body>
-    <!-- DASHBOARD CONTENT -->
-    <div class="dashboard-container">
-        <div class="header">
-            <h1><i class="fas fa-bolt"></i> Energy Dashboard</h1>
-            <div class="datetime" id="datetime">Loading time...</div>
-        </div>
-        
-        <div class="price-section">
-            <h2><i class="fas fa-money-bill-wave"></i> Electricity Price</h2>
-            <div class="price-display">
-                <span class="currency-symbol">$</span>
-                <span class="price-amount">0.15</span>
-                <span class="price-unit">per kWh</span>
+<!-- Look for this section in the HEADER and replace: -->
+<div class="header">
+    <div class="header-left">
+        <h1><i class="fas fa-bolt" style="color: var(--accent); margin-right: 10px;"></i>Smart Energy Monitor</h1>
+        <div class="header-subtitle">Real-time electricity monitoring with CT sensor integration</div>
+    </div>
+    <div class="user-info">
+        <div class="user-profile-dropdown">
+            <div style="text-align: right; cursor: pointer;" id="userProfileBtn">
+                <div style="font-weight: 600;">Nigel Ncube</div>
+                <div style="color: var(--text-secondary); font-size: 14px;">nigel@example.com • Premium</div>
             </div>
-            <button class="edit-btn" onclick="editPrice()">Edit Price</button>
-        </div>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3><i class="fas fa-chart-line"></i> Current Power</h3>
-                <div class="stat-value">1,250 W</div>
-                <div class="stat-label">Live consumption</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3><i class="fas fa-calendar-day"></i> Today's Cost</h3>
-                <div class="stat-value">$2.45</div>
-                <div class="stat-label">Based on current rate</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3><i class="fas fa-calendar-month"></i> This Month</h3>
-                <div class="stat-value">$43.80</div>
-                <div class="stat-label">Total so far</div>
-            </div>
-        </div>
-        
-        <div class="currency-settings">
-            <h2><i class="fas fa-globe"></i> Currency Settings</h2>
-            <div class="settings-group">
-                <select id="currencySelect" class="currency-select">
-                    <optgroup label="African Currencies">
-                        <option value="ZAR">South African Rand (R)</option>
-                        <option value="BWP">Botswana Pula (P)</option>
-                        <option value="KES">Kenyan Shilling (KSh)</option>
-                        <option value="NGN">Nigerian Naira (₦)</option>
-                        <option value="ZMW">Zambian Kwacha (ZK)</option>
-                        <option value="EGP">Egyptian Pound (E£)</option>
-                    </optgroup>
-                    
-                    <optgroup label="Major Global">
-                        <option value="USD" selected>US Dollar ($)</option>
-                        <option value="EUR">Euro (€)</option>
-                        <option value="GBP">British Pound (£)</option>
-                        <option value="JPY">Japanese Yen (¥)</option>
-                        <option value="CNY">Chinese Yuan (¥)</option>
-                        <option value="INR">Indian Rupee (₹)</option>
-                        <option value="CAD">Canadian Dollar (C$)</option>
-                        <option value="AUD">Australian Dollar (A$)</option>
-                    </optgroup>
-                    
-                    <optgroup label="Other Currencies">
-                        <option value="CHF">Swiss Franc (CHF)</option>
-                        <option value="SGD">Singapore Dollar (S$)</option>
-                        <option value="BRL">Brazilian Real (R$)</option>
-                        <option value="MXN">Mexican Peso (Mex$)</option>
-                        <option value="AED">UAE Dirham (د.إ)</option>
-                        <option value="SAR">Saudi Riyal (ر.س)</option>
-                        <option value="TRY">Turkish Lira (₺)</option>
-                        <option value="KRW">South Korean Won (₩)</option>
-                        <option value="SEK">Swedish Krona (kr)</option>
-                        <option value="NOK">Norwegian Krone (kr)</option>
-                        <option value="DKK">Danish Krona (kr)</option>
-                        <option value="NZD">New Zealand Dollar (NZ$)</option>
-                        <option value="HKD">Hong Kong Dollar (HK$)</option>
-                    </optgroup>
-                </select>
-                
-                <div class="price-input-group">
-                    <label for="priceInput">Price per kWh:</label>
-                    <input type="number" id="priceInput" value="0.15" step="0.001" min="0">
-                </div>
-                
-                <button class="save-btn" onclick="saveSettings()">
-                    <i class="fas fa-save"></i> Save Settings
-                </button>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p><i class="fas fa-info-circle"></i> Energy Monitor v1.0 • Multi-currency support • Real-time tracking</p>
+            <div class="user-avatar">NN</div>
         </div>
     </div>
+</div>
+
+<!-- Add this PROFILE MODAL at the bottom of the body (before closing </div>): -->
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>User Profile & Settings</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="profile-form">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="userName" value="Nigel Ncube" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="userEmail" value="nigel@example.com" placeholder="Enter email for notifications">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="userPhone" value="+27 123 456 789" placeholder="Enter phone number">
+                </div>
+                
+                <h4 style="margin-top: 25px; margin-bottom: 15px; color: var(--text-primary);">Notification Preferences</h4>
+                
+                <div class="settings-item">
+                    <div>
+                        <div style="font-weight: 600;">Email Notifications</div>
+                        <div class="card-subtitle">Bill alerts & usage reports</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="emailNotifications" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-item">
+                    <div>
+                        <div style="font-weight: 600;">SMS Alerts</div>
+                        <div class="card-subtitle">High usage & outage alerts</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="smsNotifications">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-item">
+                    <div>
+                        <div style="font-weight: 600;">Push Notifications</div>
+                        <div class="card-subtitle">App notifications</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pushNotifications" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div style="margin-top: 30px; display: flex; gap: 15px;">
+                    <button class="btn btn-primary" id="saveProfile">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button class="btn btn-secondary" id="cancelProfile">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this CSS for the modal (add to the existing styles): -->
+<style>
+    .user-profile-dropdown {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
     
-    <!-- JavaScript Files -->
-    <script src="supabase.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
+    .user-profile-dropdown:hover {
+        opacity: 0.9;
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal-content {
+        background-color: var(--bg-card);
+        margin: 5% auto;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        animation: modalSlide 0.3s ease;
+    }
+    
+    @keyframes modalSlide {
+        from {transform: translateY(-50px); opacity: 0;}
+        to {transform: translateY(0); opacity: 1;}
+    }
+    
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-header h3 {
+        color: var(--text-primary);
+        font-size: 20px;
+    }
+    
+    .close-modal {
+        color: var(--text-secondary);
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .close-modal:hover {
+        color: var(--text-primary);
+    }
+    
+    .modal-body {
+        padding: 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 16px;
+        transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+</style>
+
+<!-- Add this JavaScript for the profile modal (add to the existing script): -->
+<script>
+    // Profile Modal Functionality
+    const profileModal = document.getElementById('profileModal');
+    const userProfileBtn = document.getElementById('userProfileBtn');
+    const closeModal = document.querySelector('.close-modal');
+    const cancelProfileBtn = document.getElementById('cancelProfile');
+    const saveProfileBtn = document.getElementById('saveProfile');
+    
+    // Open modal when clicking user profile
+    userProfileBtn.addEventListener('click', () => {
+        profileModal.style.display = 'block';
+    });
+    
+    // Close modal functions
+    closeModal.addEventListener('click', () => {
+        profileModal.style.display = 'none';
+    });
+    
+    cancelProfileBtn.addEventListener('click', () => {
+        profileModal.style.display = 'none';
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target === profileModal) {
+            profileModal.style.display = 'none';
+        }
+    });
+    
+    // Save profile functionality
+    saveProfileBtn.addEventListener('click', () => {
+        const userName = document.getElementById('userName').value;
+        const userEmail = document.getElementById('userEmail').value;
+        
+        // Update the header display
+        document.querySelector('.user-profile-dropdown div:first-child div:first-child').textContent = userName;
+        document.querySelector('.user-profile-dropdown div:first-child div:nth-child(2)').textContent = 
+            `${userEmail} • Premium`;
+        
+        // Update avatar initials
+        const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.querySelector('.user-avatar').textContent = initials;
+        
+        // Show success message
+        alert('Profile updated successfully!');
+        
+        // Close modal
+        profileModal.style.display = 'none';
+        
+        // In a real app, you would send this data to your backend API
+        console.log('Profile saved:', { userName, userEmail });
+    });
+</script>
